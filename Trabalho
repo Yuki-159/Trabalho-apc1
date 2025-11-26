@@ -1,0 +1,143 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+    char nome[50];
+} Jogador;
+
+int main() {
+    char tabuleiro[3][3] = {{'1', '2', '3'}, {'4', '5', '6'}, {'7', '8', '9'}};
+    int escolha;
+    int linha, coluna;
+    int jogadorAtual = 1;
+    int jogadas = 0;
+    int vitoria = 0;
+    int opcaoMenu = 0;
+
+    Jogador jogadorX = {"Jogador X"};
+    Jogador jogadorO = {"Jogador O"};
+
+    while (opcaoMenu != 2) {
+        printf("\n--- Menu Principal: Jogo da Velha ---\n");
+        printf("1. Iniciar Jogo\n");
+        printf("2. Sair\n");
+        printf("Escolha uma opcao (1 ou 2): ");
+
+        if (scanf("%d", &opcaoMenu) != 1) {
+            printf("\nEntrada invalida. Por favor, digite um numero.\n");
+            while (getchar() != '\n');
+            continue;
+        }
+
+        if (opcaoMenu == 1) {
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    tabuleiro[i][j] = (i * 3 + j + 1) + '0';
+                }
+            }
+            jogadorAtual = 1;
+            jogadas = 0;
+            vitoria = 0;
+
+            printf("\nDigite o nome do Jogador X: ");
+            while (getchar() != '\n');
+            if (fgets(jogadorX.nome, sizeof(jogadorX.nome), stdin)) {
+                jogadorX.nome[strcspn(jogadorX.nome, "\n")] = 0;
+            }
+
+            printf("Digite o nome do Jogador O: ");
+            if (fgets(jogadorO.nome, sizeof(jogadorO.nome), stdin)) {
+                jogadorO.nome[strcspn(jogadorO.nome, "\n")] = 0;
+            }
+            
+            printf("\nComecando o jogo!\n");
+
+            while (vitoria == 0) {
+                printf("\n--- Tabuleiro Atual ---\n");
+                printf(" %c | %c | %c \n", tabuleiro[0][0], tabuleiro[0][1], tabuleiro[0][2]);
+                printf("---|---|---\n");
+                printf(" %c | %c | %c \n", tabuleiro[1][0], tabuleiro[1][1], tabuleiro[1][2]);
+                printf("---|---|---\n");
+                printf(" %c | %c | %c \n", tabuleiro[2][0], tabuleiro[2][1], tabuleiro[2][2]);
+
+                char simbolo = (jogadorAtual == 1) ? 'X' : 'O';
+                char* nomeAtual = (jogadorAtual == 1) ? jogadorX.nome : jogadorO.nome;
+
+                printf("\nE a vez de %s (%c). Digite o numero da posicao (1-9): ", nomeAtual, simbolo);
+
+                if (scanf("%d", &escolha) != 1) {
+                    printf("\nEntrada invalida. Por favor, digite um numero entre 1 e 9.\n");
+                    while (getchar() != '\n');
+                    continue;
+                }
+
+                if (escolha < 1 || escolha > 9) {
+                    printf("\nPosicao invalida. Escolha um numero entre 1 e 9.\n");
+                    continue;
+                }
+
+                linha = (escolha - 1) / 3;
+                coluna = (escolha - 1) % 3;
+
+                if (tabuleiro[linha][coluna] == 'X' || tabuleiro[linha][coluna] == 'O') {
+                    printf("\nPosicao ja ocupada! Escolha outra.\n");
+                    continue;
+                }
+
+                tabuleiro[linha][coluna] = simbolo;
+                jogadas++;
+
+                for (int i = 0; i < 3; i++) {
+                    if ((tabuleiro[i][0] == simbolo && tabuleiro[i][1] == simbolo && tabuleiro[i][2] == simbolo) ||
+                        (tabuleiro[0][i] == simbolo && tabuleiro[1][i] == simbolo && tabuleiro[2][i] == simbolo)) {
+                        vitoria = 1;
+                        break;
+                    }
+                }
+
+                if (vitoria == 0) {
+                    if ((tabuleiro[0][0] == simbolo && tabuleiro[1][1] == simbolo && tabuleiro[2][2] == simbolo) ||
+                        (tabuleiro[0][2] == simbolo && tabuleiro[1][1] == simbolo && tabuleiro[2][0] == simbolo)) {
+                        vitoria = 1;
+                    }
+                }
+
+                if (vitoria == 0 && jogadas == 9) {
+                    vitoria = 2;
+                }
+
+                if (vitoria == 0) {
+                    jogadorAtual = (jogadorAtual == 1) ? 2 : 1;
+                }
+            }
+
+            printf("\n*** FIM DE JOGO ***\n");
+            
+            printf("\n--- Tabuleiro Final ---\n");
+            printf(" %c | %c | %c \n", tabuleiro[0][0], tabuleiro[0][1], tabuleiro[0][2]);
+            printf("---|---|---\n");
+            printf(" %c | %c | %c \n", tabuleiro[1][0], tabuleiro[1][1], tabuleiro[1][2]);
+            printf("---|---|---\n");
+            printf(" %c | %c | %c \n", tabuleiro[2][0], tabuleiro[2][1], tabuleiro[2][2]);
+
+            if (vitoria == 1) {
+                char* nomeVencedor = (jogadorAtual == 1) ? jogadorX.nome : jogadorO.nome;
+                printf("\nParabens, %s (%c) venceu o jogo!\n", nomeVencedor, (jogadorAtual == 1) ? 'X' : 'O');
+            } else if (vitoria == 2) {
+                printf("\nO jogo terminou em Empate!\n");
+            }
+            
+            printf("\nPressione ENTER para voltar ao Menu Principal...");
+            while (getchar() != '\n');
+            getchar();
+            
+        } else if (opcaoMenu == 2) {
+            printf("\nObrigado por jogar! Encerrando o programa.\n");
+        } else {
+            printf("\nOpcao invalida. Por favor, escolha 1 ou 2.\n");
+        }
+    }
+
+    return 0;
+}
